@@ -59,9 +59,10 @@ def register():
 def login():
     if request.method == "POST":
         # check if username exists in db
+        # existing_user is a dictionary for that user
         existing_user = mongo.db.users.find_one(
             {"username": request.form.get("username").lower()})
-
+        # if exising_user returns a dictionary
         if existing_user:
             # ensure hashed password matches user input
             if check_password_hash(
@@ -88,12 +89,8 @@ def profile(username):
     # get session username from db using cookie dictionary
     username = mongo.db.users.find_one(
         {"username": session["user"]})["username"]
-    # session dictionary not empty
-    if session["user"]:
-        return render_template("profile.html", username=username)
-    # session dictionary empty
-    else:
-        return redirect(url_for("login"))
+
+    return render_template("profile.html", username=username)
 
 
 @app.route("/logout")
