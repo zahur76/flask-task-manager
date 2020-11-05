@@ -130,8 +130,26 @@ def add_task():
 @app.route("/edit_task/<task_id>", methods=["GET", "POST"])
 # task_id obtained from task.html
 def edit_task(task_id):
+    if request.method == "POST":
+        # if there is a request.form.get("is_urgent") then:
+        if request.form.get("is_urgent"):
+            is_urgent = "on"
+        else:
+            is_urgent = "off"
+        new_task = {"category_name": request.form.get("category_name"),
+                    "task_name": request.form.get("task_name"),
+                    "task_description": request.form.get("task_description"),
+                    "is_urgent": is_urgent,
+                    "due_date": request.form.get("due_date"),
+                    "created_by": session["user"]}
+        # Create new task in mongodb tasks collection
+        mongo.db.tasks.update_one(
+            {"_id": ObjectId(task_id)}, {"$set": new_task})
+        flash("Tasks successfully Updated")
+        return redirect(url_for("get_tasks"))
+
     # obtain db using task_id
-    task = mongo.db.tasks.find_one({"_id": ObjectId(task_id)})    
+    task = mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
     categories = mongo.db.catogories.find().sort("category_name", 1)
     return render_template("edit_task.html", task=task, categories=categories)
 
