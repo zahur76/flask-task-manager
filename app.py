@@ -11,9 +11,11 @@ if os.path.exists("env.py"):
 app = Flask(__name__)
 
 app.config["MONGO_DBNAME"] = os.environ.get("MONGO_DBNAME")
+# Used to connect to mongodb
 app.config["MONGO_URI"] = os.environ.get("MONGO_URI")
+# Used for session cookie
 app.secret_key = os.environ.get("SECRET_KEY")
-
+# creating mongodb using ["MONGO_URI"]
 mongo = PyMongo(app)
 
 
@@ -28,6 +30,7 @@ def get_tasks():
 def register():
     if request.method == "POST":
         # check if username already exists in db
+        # will return the full record as a dictionary
         existing_user = mongo.db.users.find_one(
             {"username": request.form.get("username").lower()})
         print(existing_user)
@@ -62,7 +65,7 @@ def login():
         # existing_user is a dictionary for that user
         existing_user = mongo.db.users.find_one(
             {"username": request.form.get("username").lower()})
-        # if exising_user returns a dictionary
+        # if exising_user returns a dictionary and not null
         if existing_user:
             # ensure hashed password matches user input
             if check_password_hash(
@@ -96,6 +99,7 @@ def profile(username):
 @app.route("/logout")
 def logout():
     flash("You have been logged out!")
+    # clear cookie from session
     session.pop("user")
     return redirect(url_for("login"))
 
@@ -103,16 +107,22 @@ def logout():
 @app.route("/add_task", methods=["GET", "POST"])
 def add_task():
     if request.method == "POST":
-        is_urgent = "on" if request.form.get("is_urgent") else "off"
+        # if there is a request.form.get("is_urgent") then:
+        if request.form.get("is_urgent"):
+            is_urgent = "on"
+        else:
+            is_urgent = "off"
         new_task = {"category_name": request.form.get("category_name"),
                     "task_name": request.form.get("task_name"),
                     "task_description": request.form.get("task_description"),
-                    "is_urgent": request.form.get("is_urgent"),
+                    "is_urgent": is_urgent,
                     "due_date": request.form.get("due_date"),
                     "created_by": session["user"]}
+        # Create new task in mongodb tasks collection
         mongo.db.tasks.insert_one(new_task)
         flash("Tasks successfully added")
         return redirect(url_for("get_tasks"))
+    # Provide category field in rendered page for form
     categories = mongo.db.catogories.find().sort("category_name", 1)
     return render_template("add_task.html", categories=categories)
 
