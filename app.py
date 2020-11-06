@@ -22,6 +22,7 @@ mongo = PyMongo(app)
 @app.route("/")
 @app.route("/get_tasks")
 def get_tasks():
+    # Obtain all tasks in db. Use fo loop in html
     tasks = list(mongo.db.tasks.find())
     return render_template("tasks.html", tasks=tasks)
 
@@ -29,12 +30,11 @@ def get_tasks():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        # check if username already exists in db
-        # will return the full record as a dictionary
+        # will return the full record as a dictionary if it exists
         existing_user = mongo.db.users.find_one(
             {"username": request.form.get("username").lower()})
-        print(existing_user)
-        # same as if existing_user["username"] == request.form.get("username")
+        # check if username already exists in db
+        # if exisiting user returns an Object
         if existing_user:
             flash("Username already exist!")
             return redirect(url_for("register"))
@@ -156,6 +156,7 @@ def edit_task(task_id):
 
 @app.route("/delete_task/<task_id>")
 def delete_task(task_id):
+    # remove Object with specific Id
     mongo.db.tasks.remove({"_id": ObjectId(task_id)})
     flash("Task has been removed!")
     return redirect(url_for("get_tasks"))
@@ -163,7 +164,8 @@ def delete_task(task_id):
 
 @app.route("/categories")
 def categories():
-    # List not neccessary
+    # Will still work without list function
+    # Will obtain all Objects in category. Must use for loop in html
     categories = list(mongo.db.catogories.find().sort("category_name", 1))
     return render_template("categories.html", categories=categories)
 
@@ -189,7 +191,7 @@ def edit_category(category_id):
             {"_id": ObjectId(category_id)}, {"$set": category})
         flash("Category name updated!")
         return redirect(url_for("categories"))
-    # We only need 1 category in edit page
+    # We only need 1 category in edit page since editing only 1 object
     category = mongo.db.catogories.find_one({"_id": ObjectId(category_id)})
     return render_template("edit_category.html", category=category)
 
