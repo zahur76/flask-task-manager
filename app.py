@@ -128,7 +128,7 @@ def add_task():
 
 
 @app.route("/edit_task/<task_id>", methods=["GET", "POST"])
-# task_id obtained from task.html
+# task_id obtained from task.html page
 def edit_task(task_id):
     if request.method == "POST":
         # if there is a request.form.get("is_urgent") then:
@@ -148,7 +148,7 @@ def edit_task(task_id):
         flash("Tasks successfully Updated")
         return redirect(url_for("get_tasks"))
 
-    # obtain db using task_id
+    # obtain db using task_id from task.html page
     task = mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
     categories = mongo.db.catogories.find().sort("category_name", 1)
     return render_template("edit_task.html", task=task, categories=categories)
@@ -159,6 +159,13 @@ def delete_task(task_id):
     mongo.db.tasks.remove({"_id": ObjectId(task_id)})
     flash("Task has been removed!")
     return redirect(url_for("get_tasks"))
+
+
+@app.route("/categories")
+def categories():
+    # List not neccessary 
+    categories = list(mongo.db.catogories.find().sort("category_name", 1))
+    return render_template("categories.html", categories=categories)
     
 
 if __name__ == "__main__":

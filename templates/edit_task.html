@@ -4,6 +4,7 @@
     <h3 class="light-blue-text text-darken-4 center-align">Edit Task</h3>
 
     <div class="row card-panel grey lighten-5">
+        <!-- Form -->
         <form class="col s12" method="POST" action="{{ url_for('edit_task', task_id = task._id) }}">            
             <!-- Dropdown menu for category -->
             <div class="row">
@@ -12,7 +13,8 @@
                     <select id="category_name" name="category_name" class="validate" required>
                     <option value="" disabled>Choose Category</option>
                     {% for category in categories %}
-                        {% if category.category_name == task.category_name %}
+                        <!--will show item which is the same -->
+                        {% if task.category_name == category.category_name %}
                             <option value="{{ category.category_name }}" selected>{{ category.category_name }}</option>
                         {% else %}
                             <option value="{{ category.category_name }}">{{ category.category_name }}</option>

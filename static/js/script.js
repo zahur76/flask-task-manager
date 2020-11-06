@@ -2,7 +2,9 @@ $(document).ready(function () {
     $(".sidenav").sidenav({edge: "right"});
     $(".collapsible").collapsible();
     $(".tooltipped").tooltip();
+    /* requiured for dropdown menu from materialize */
     $('select').formSelect();
+    $('.modal').modal();
     $(".datepicker").datepicker({
         format: "dd mmmm, yyyy",
         yearRange: 3,
@@ -11,6 +13,7 @@ $(document).ready(function () {
             done: "Select"
         }
     });
+    
 
     validateMaterializeSelect();
     function validateMaterializeSelect() {
