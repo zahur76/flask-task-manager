@@ -185,12 +185,20 @@ def add_category():
 def edit_category(category_id):
     if request.method == "POST":
         category = {"category_name": request.form.get("category_name")}
-        mongo.db.catogories.update_one({"_id": ObjectId(category_id)}, {"$set": category})
+        mongo.db.catogories.update_one(
+            {"_id": ObjectId(category_id)}, {"$set": category})
         flash("Category name updated!")
         return redirect(url_for("categories"))
-
+    # We only need 1 category in edit page
     category = mongo.db.catogories.find_one({"_id": ObjectId(category_id)})
     return render_template("edit_category.html", category=category)
+
+
+@app.route("/delete_category/<category_id>")
+def delete_category(category_id):
+    mongo.db.catogories.remove({"_id": ObjectId(category_id)})
+    flash("Category has been deleted")
+    return redirect(url_for('categories'))
 
 
 if __name__ == "__main__":
