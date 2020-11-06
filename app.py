@@ -163,10 +163,22 @@ def delete_task(task_id):
 
 @app.route("/categories")
 def categories():
-    # List not neccessary 
+    # List not neccessary
     categories = list(mongo.db.catogories.find().sort("category_name", 1))
     return render_template("categories.html", categories=categories)
-    
+
+
+@app.route("/add_category", methods=["GET", "POST"])
+def add_category():
+    if request.method == "POST":
+        # Insert into mongodb category database
+        mongo.db.catogories.insert_one(
+            {"category_name": request.form.get("category_name")})
+        flash("New Category added")
+        return redirect(url_for("categories"))
+
+    return render_template("add_category.html")
+
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
